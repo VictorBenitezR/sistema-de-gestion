@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo_form }}</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+</head>
+<body style="background-color: #f0f0f0">
+    <div class="auth-container" style="width: 450px; margin-top: 50px">
+        <h2>{{ titulo_form }}</h2>
+
+        {% if mensaje %}
+        <div
+            class="validation-message {% if es_error %}validation-error{% else %}validation-success{% endif %}"
+        >
+            {{ mensaje }}
+        </div>
+        {% endif %}
+        
+        {% if cliente %}
+            <form method="post" action="{% url 'editar_cliente' pk=cliente.pk %}">
+        {% else %}
+            <form method="post" action="{% url 'crear_cliente' %}">
+        {% endif %}
+            {% csrf_token %}
+            
+            <div class="form-field">
+                <label for="nombre_completo">Nombre o Razón Social</label>
+                <input
+                    type="text"
+                    id="nombre_completo"
+                    name="nombre_completo"
+                    value="{{ datos_prev.nombre_completo }}"
+                    required
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="cedula_ruc">Cédula / RUC (Opcional)</label>
+                <input
+                    type="text"
+                    id="cedula_ruc"
+                    name="cedula_ruc"
+                    value="{{ datos_prev.cedula_ruc }}"
+                    placeholder="Documento de Identificación"
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="direccion">Dirección</label>
+                <input
+                    type="text"
+                    id="direccion"
+                    name="direccion"
+                    value="{{ datos_prev.direccion }}"
+                    required
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="telefono">Teléfono</label>
+                <input
+                    type="text"
+                    id="telefono"
+                    name="telefono"
+                    value="{{ datos_prev.telefono }}"
+                    required
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="email">Email (Opcional)</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="{{ datos_prev.email }}"
+                    placeholder="correo@ejemplo.com"
+                />
+            </div>
+
+
+            <div
+                class="form-actions"
+                style="justify-content: space-between; margin-top: 30px"
+            >
+                <a
+                    href="{% url 'listar_clientes' %}"
+                    class="auth-button"
+                    style="background-color: #6c757d; text-decoration: none"
+                >
+                    Cancelar
+                </a>
+                <button
+                    type="submit"
+                    class="auth-button"
+                    style="background-color: #007bff"
+                >
+                    {% if cliente %}Actualizar Cliente{% else %}Registrar Cliente{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

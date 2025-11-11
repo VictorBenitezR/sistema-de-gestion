@@ -1,0 +1,68 @@
+{% load static %}
+<!-- prettier-ignore-start -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      {% if titulo_form %} {{ titulo_form }}{% else %}Crear Nueva Categoría
+      {%endif %}
+    </title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+  </head>
+
+  <body style="background-color: #f0f0f0">
+    <div class="auth-container" style="width: 450px; margin-top: 50px">
+      {% if titulo_form %}
+      <h2>{{ titulo_form }}</h2>
+      {% else %}
+      <h2>Crear Nueva Categoría</h2>
+      {% endif %} {% if mensaje %}
+      <div
+        class="validation-message {% if es_error %}validation-error{% else %}validation-success{% endif %}"
+      >
+        {{ mensaje }}
+      </div>
+      {% endif %}
+
+      <form
+        method="post"
+        action="{% if categoria_pk %}{% url 'editar_categoria' pk=categoria_pk %}{% else %}{% url 'crear_categoria' %}{% endif %}"
+      >
+        {% csrf_token %}
+        <div class="form-field">
+          <label for="nombre">Nombre de la Categoría</label>
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            value="{{ nombre_prev }}"
+            required
+          />
+        </div>
+
+        <div
+          class="form-actions"
+          style="justify-content: space-between; margin-top: 30px"
+        >
+          <a
+            href="{% url 'listar_categorias' %}"
+            class="auth-button"
+            style="background-color: #6c757d; text-decoration: none"
+          >
+            Volver al Listado
+          </a>
+
+          <button
+            type="submit"
+            class="auth-button"
+            style="background-color: #007bff"
+          >
+            {% if categoria_pk %}Actualizar Categoría{% else %}Guardar
+            Categoría{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
+<!-- prettier-ignore-end -->

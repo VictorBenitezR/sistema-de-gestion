@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ titulo_modulo }}</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+  </head>
+  <body>
+    <div class="main-content" style="width: 80%; margin: 50px auto">
+      <h2>{{ titulo_modulo }}</h2>
+
+      {% if not movimientos %}
+      <p style="color: #6c757d">No hay movimientos de stock registrados.</p>
+      {% else %}
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Usuario</th>
+            <th>Ref. Venta</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mov in movimientos %}
+          <tr>
+            <td>{{ mov.fecha_movimiento|date:"Y-m-d H:i" }}</td>
+            <td>
+              {% if mov.tipo == 'ENTRADA' %}
+              <span style="color: green; font-weight: bold"
+                >{{ mov.get_tipo_display }}</span
+              >
+              {% else %}
+              <span style="color: red; font-weight: bold"
+                >{{ mov.get_tipo_display }}</span
+              >
+              {% endif %}
+            </td>
+            <td>{{ mov.producto.nombre }}</td>
+            <td style="text-align: center">
+              {% if mov.tipo == 'ENTRADA' %} +{{ mov.cantidad }} {% else %}
+              {{mov.cantidad }} {% endif %}
+            </td>
+            <td>{{ mov.usuario.username }}</td>
+            <td>
+              {% if mov.venta %}
+              <a href="#" style="text-decoration: none"
+                >Venta #{{ mov.venta.pk }}</a
+              >
+              {% else %} Ajuste/Manual {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% endif %}
+
+      <div style="margin-top: 20px">
+        <a
+          href="{% url 'home_inventario' %}"
+          class="action-button"
+          style="
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 4px;
+          "
+        >
+          Volver
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

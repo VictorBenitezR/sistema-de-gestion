@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gestión de Categorías</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+  </head>
+  <body>
+    <div
+      class="container"
+      style="width: 80%; max-width: 800px; margin-top: 50px"
+    >
+      <div class="header" style="background-color: #343a40">
+        Gestión de Categorías
+        <a href="{% url 'logout_usuario' %}" class="logout-link"
+          >Cerrar Sesión</a
+        >
+      </div>
+
+      <div class="content">
+        <h2>Listado de Categorías</h2>
+
+        <div
+          class="form-actions"
+          style="justify-content: flex-start; margin-bottom: 20px"
+        >
+          <a
+            href="{% url 'home_inventario' %}"
+            class="auth-button"
+            style="
+              background-color: #6c757d;
+              text-decoration: none;
+              margin-right: 15px;
+            "
+          >
+            Volver
+          </a>
+          <a
+            href="{% url 'crear_categoria' %}"
+            class="auth-button"
+            style="background-color: #28a745; text-decoration: none"
+          >
+            ➕ Nueva Categoría
+          </a>
+        </div>
+
+        {% if not categorias %}
+        <p>No hay categorías registradas.</p>
+        {% else %}
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for categoria in categorias %}
+            <tr>
+              <td>{{ categoria.nombre }}</td>
+              <td>
+                <a
+                  href="{% url 'editar_categoria' pk=categoria.pk %}"
+                  class="action-link edit-btn"
+                  >Editar</a
+                >
+                <form
+                  method="post"
+                  action="{% url 'eliminar_categoria' pk=categoria.pk %}"
+                  style="display: inline"
+                  onsubmit="return confirm('¿Está seguro de que desea eliminar la categoría {{ categoria.nombre }}? Esto solo es posible si no tiene productos asociados.');"
+                >
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    class="action-link delete-btn"
+                    style="border: none; cursor: pointer"
+                  >
+                    Eliminar
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>

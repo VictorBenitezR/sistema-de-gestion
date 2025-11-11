@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block titulo %}Inventario{% endblock titulo %}</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+    {% block extra_css %}{% endblock extra_css %}
+
+    <style>
+      /* Estilos generales del Layout */
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+      }
+      .main-layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .content-wrapper {
+        flex-grow: 1;
+        padding: 20px;
+      }
+
+      /* Estilos del Sidebar */
+      .sidebar {
+        width: 250px;
+        background-color: #343a40; /* Color oscuro */
+        color: white;
+        padding-top: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      }
+      .sidebar a {
+        padding: 15px 20px;
+        text-decoration: none;
+        font-size: 16px;
+        color: #ddd;
+        display: block;
+        transition: background-color 0.3s;
+      }
+      .sidebar a:hover {
+        background-color: #495057;
+        color: white;
+      }
+      .sidebar .active {
+        background-color: #007bff; /* Azul para el ítem activo */
+        color: white;
+        font-weight: bold;
+      }
+      .sidebar h4 {
+        padding: 0 20px 10px;
+        color: #ccc;
+        margin: 15px 0 5px;
+        border-bottom: 1px solid #495057;
+      }
+      .sidebar .header-app {
+        text-align: center;
+        padding-bottom: 20px;
+        font-size: 1.5em;
+        color: #4caf50; /* Color del logo/título */
+      }
+      .sidebar .user-info {
+        padding: 10px 20px;
+        font-size: 0.9em;
+        border-top: 1px solid #495057;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-layout">
+      <div class="sidebar">
+        <div class="header-app">Sistema de Inventario</div>
+
+        {% include 'inventario/_sidebar.html' %}
+
+        <div class="user-info">
+          Bienvenido, {{ user.username }} {% if user.is_staff %}(Admin)
+          {%endif %}
+        </div>
+      </div>
+
+      <div class="content-wrapper">
+        {% block content %} {% endblock content %}
+      </div>
+    </div>
+  </body>
+</html>

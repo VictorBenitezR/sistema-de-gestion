@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+  </head>
+  <body>
+    <div class="main-content">
+      <h2>{{ titulo_modulo }}</h2>
+
+      <div class="control-bar" style="margin-bottom: 20px">
+        <a
+          href="{% url 'crear_usuario' %}"
+          class="auth-button"
+          style="background-color: #28a745"
+        >
+          + Nuevo Usuario
+        </a>
+      </div>
+
+      {% if not usuarios %}
+      <p style="color: #6c757d">
+        No hay usuarios registrados en el sistema (aparte de ti).
+      </p>
+      {% else %}
+
+      <table
+        class="data-table"
+        border="1"
+        cellpadding="10"
+        cellspacing="0"
+        style="width: 100%"
+      >
+        <thead>
+          <tr>
+            <th>Nombre Completo</th>
+            <th>Nick Name (Usuario)</th>
+            <th>Rol (Admin)</th>
+            <th style="width: 150px">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for usuario in usuarios %}
+          <tr>
+            <td>{{ usuario.first_name }} {{ usuario.last_name }}</td>
+            <td>{{ usuario.username }}</td>
+            <td>
+              {% if usuario.is_staff %}
+              <span style="color: green; font-weight: bold">ADMIN</span>
+              {% else %}
+              <span style="color: orange">VENDEDOR</span>
+              {% endif %}
+            </td>
+            <td>
+              <a
+                href="{% url 'editar_usuario' pk=usuario.pk %}"
+                class="auth-button"
+                style="
+                  background-color: #ffc107;
+                  padding: 5px 10px;
+                  font-size: 0.9em;
+                  margin-right: 5px;
+                "
+              >
+                Editar
+              </a>
+
+              <form
+                method="post"
+                action="{% url 'eliminar_usuario' pk=usuario.pk %}"
+                style="display: inline"
+              >
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="auth-button"
+                  style="
+                    background-color: #dc3545;
+                    padding: 5px 10px;
+                    font-size: 0.9em;
+                  "
+                  onclick="return confirm('¿Está seguro de que desea eliminar al usuario {{ usuario.username }}? Esta acción es irreversible.');"
+                >
+                  Eliminar
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% endif %}
+
+      <div style="margin-top: 20px">
+        <a
+          href="{% url 'home_inventario' %}"
+          class="auth-button"
+          style="background-color: #6c757d; text-decoration: none"
+        >
+          Volver
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

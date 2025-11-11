@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ titulo_modulo }}</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+    <style>
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      .data-table th,
+      .data-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+      .data-table th {
+        background-color: #f2f2f2;
+      }
+      .action-button {
+        padding: 5px 10px;
+        font-size: 0.9em;
+        margin-right: 5px;
+        text-decoration: none;
+        border-radius: 3px;
+        cursor: pointer;
+        border: none;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-content" style="width: 80%; margin: 50px auto">
+      <h2>{{ titulo_modulo }}</h2>
+
+      <div class="control-bar" style="margin-bottom: 20px">
+        <a
+          href="{% url 'crear_cliente' %}"
+          class="action-button"
+          style="background-color: #28a745; color: white"
+        >
+          + Registrar Nuevo Cliente
+        </a>
+      </div>
+
+      {% if not clientes %}
+      <p style="color: #6c757d">No hay clientes registrados en el sistema.</p>
+      {% else %}
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre/Razón Social</th>
+            <th>Cédula/RUC</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Fecha Registro</th>
+            <th style="width: 180px">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cliente in clientes %}
+          <tr>
+            <td>{{ cliente.nombre_completo }}</td>
+            <td>{{ cliente.cedula_ruc|default:"N/A" }}</td>
+            <td>{{ cliente.telefono|default:"N/A" }}</td>
+            <td>{{ cliente.email|default:"N/A" }}</td>
+            <td>{{ cliente.fecha_creacion|date:"Y-m-d" }}</td>
+            <td>
+              <a
+                href="{% url 'editar_cliente' pk=cliente.pk %}"
+                class="action-button"
+                style="background-color: #ffc107; color: #333"
+              >
+                Editar
+              </a>
+
+              <form
+                method="post"
+                action="{% url 'eliminar_cliente' pk=cliente.pk %}"
+                style="display: inline"
+              >
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="action-button"
+                  style="background-color: #dc3545; color: white"
+                  onclick="return confirm('¿Está seguro de que desea eliminar al cliente {{ cliente.nombre_completo }}?');"
+                >
+                  Eliminar
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% endif %}
+
+      <div style="margin-top: 20px">
+        <a
+          href="{% url 'home_inventario' %}"
+          class="action-button"
+          style="background-color: #6c757d; color: white; text-decoration: none"
+        >
+          Volver al Dashboard
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

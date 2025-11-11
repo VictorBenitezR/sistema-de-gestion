@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo_form }}</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+</head>
+<body style="background-color: #f0f0f0">
+    <div class="auth-container" style="width: 450px; margin-top: 50px">
+        <h2>{{ titulo_form }}</h2>
+
+        {% if mensaje %}
+        <div
+            class="validation-message {% if es_error %}validation-error{% else %}validation-success{% endif %}"
+        >
+            {{ mensaje }}
+        </div>
+        {% endif %}
+        
+        {% if usuario %}
+            {% with action_url=usuario.pk|urlize:'editar_usuario' %}
+                <form method="post" action="{% url 'editar_usuario' pk=usuario.pk %}">
+            {% endwith %}
+        {% else %}
+            <form method="post" action="{% url 'crear_usuario' %}">
+        {% endif %}
+            {% csrf_token %}
+            
+            <div class="form-field">
+                <label for="username">Usuario (Nick)</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value="{{ usuario.username|default:usuario_prev.username }}"
+                    required
+                    {% if usuario %}
+                        readonly
+                        style="background-color: #e9ecef;"
+                    {% endif %}
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="nombre_completo">Nombre Completo</label>
+                <input
+                    type="text"
+                    id="nombre_completo"
+                    name="nombre_completo"
+                    value="{{ nombre_completo_prev|default:usuario_prev.nombre_completo }}"
+                    required
+                />
+            </div>
+
+            <div class="form-field">
+                <label for="password">{% if usuario %}Nueva Contraseña (Dejar vacío para no cambiar){% else %}Contraseña{% endif %}</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Mínimo 6 caracteres"
+                    {% if not usuario %}required{% endif %}
+                />
+            </div>
+
+            <div class="form-field checkbox-field" style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 20px;">
+                <input
+                    type="checkbox"
+                    id="is_staff"
+                    name="is_staff"
+                    {% if es_staff_prev|default:usuario_prev.is_staff %}checked{% endif %}
+                    style="margin-right: 10px;"
+                    
+                    {% if usuario and usuario.pk == request.user.pk %}
+                        disabled 
+                    {% endif %}
+                >
+                <label for="is_staff" style="margin: 0; font-weight: normal; cursor: pointer;">
+                    ¿Es Administrador (Staff)?
+                </label>
+            </div>
+            {% if usuario and usuario.pk == request.user.pk %}
+                <p style="color: #6c757d; font-size: 0.9em; margin-top: -10px;">
+                    * No puedes cambiar tu propio estado de administrador.
+                </p>
+            {% endif %}
+
+
+            <div
+                class="form-actions"
+                style="justify-content: space-between; margin-top: 30px"
+            >
+                <a
+                    href="{% url 'listar_usuarios' %}"
+                    class="auth-button"
+                    style="background-color: #6c757d; text-decoration: none"
+                >
+                    Volver al Listado
+                </a>
+                <button
+                    type="submit"
+                    class="auth-button"
+                    style="background-color: #007bff"
+                >
+                    {% if usuario %}Actualizar Usuario{% else %}Registrar Usuario{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

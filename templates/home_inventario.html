@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Dashboard Principal{% endblock titulo %}
+
+{% block content %}
+    <div class="dashboard-content">
+        <h1>👋 ¡Bienvenido {{ user.username }}!</h1>
+        <p>Utiliza el menú de navegación lateral para comenzar la gestión de módulos.</p>
+
+        <div style="margin-top: 40px; padding: 20px; background-color: #e9ecef; border-radius: 5px;">
+            <h3>📊 Resumen Rápido del Sistema</h3>
+            
+            <div style="display: flex; gap: 30px; margin-bottom: 20px;">
+                <p>Total de Productos Registrados: <strong>{{ total_productos }}</strong></p>
+                <p>Ventas Históricas: <strong>${{ total_ventas|default:"0.00"|floatformat:2 }}</strong></p>
+            </div>
+            
+            <hr>
+
+            <h4>Última Venta Registrada</h4>
+            {% if ultima_venta %}
+                <p style="margin-bottom: 5px;">
+                    Cliente: {{ ultima_venta.cliente.nombre_completo }}
+                </p>
+                <p style="margin-bottom: 5px;">
+                    Fecha: {{ ultima_venta.fecha_venta|date:"d M Y (H:i)" }}
+                </p>
+                <p style="font-size: 1.2em; font-weight: bold; color: #007bff;">
+                    Total: ${{ ultima_venta.total|floatformat:2 }}
+                </p>
+            {% else %}
+                <p>Aún no se ha registrado ninguna venta.</p>
+            {% endif %}
+
+            <hr>
+
+            <h4>Último Producto Agregado</h4>
+            {% if ultimo_producto %}
+                <p style="margin-bottom: 5px;">
+                    Nombre: {{ ultimo_producto.nombre }}
+                </p>
+                <p style="margin-bottom: 5px;">
+                    Categoría: {{ ultimo_producto.categoria.nombre|default:"Sin Categoría" }}
+                </p>
+                <p style="font-size: 1.2em; font-weight: bold; color: #28a745;">
+                    Stock Actual: {{ ultimo_producto.stock }} {{ ultimo_producto.unidad_medida }}
+                </p>
+            {% else %}
+                <p>No hay productos registrados en el inventario.</p>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock content %}

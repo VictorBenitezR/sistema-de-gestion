@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ titulo_form }}</title>
+    <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
+    <style>
+      /* Estilos básicos para la tabla de detalle */
+      #detalleVentaTable {
+        width: 100%;
+        margin-top: 15px;
+        border-collapse: collapse;
+      }
+      #detalleVentaTable th,
+      #detalleVentaTable td {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      .total-box {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: right;
+      }
+      .form-section {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body style="background-color: #f0f0f0">
+    <div class="auth-container" style="width: 800px; margin-top: 30px">
+      <h2>{{ titulo_form }}</h2>
+
+      {% if mensaje %}
+      <div
+        class="validation-message {% if es_error %}validation-error{% else %}validation-success{% endif %}"
+      >
+        {{ mensaje }}
+      </div>
+      {% endif %}
+
+      <form id="ventaForm" method="post" action="{% url 'crear_venta' %}">
+        {% csrf_token %}
+
+        <div class="form-section">
+          <h3>Datos del Cliente</h3>
+          <div class="form-field">
+            <label for="cliente_id">Cliente / Razón Social</label>
+            <select id="cliente_id" name="cliente_id" required>
+              <option value="">-- Seleccione un Cliente --</option>
+              {% for cliente in clientes %}
+              <option value="{{ cliente.pk }}">
+                {{ cliente.nombre_completo }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Agregar Producto</h3>
+          <div style="display: flex; gap: 10px; align-items: flex-end">
+            <div class="form-field" style="flex: 3">
+              <label for="producto_selector">Producto</label>
+              <select id="producto_selector">
+                <option value="" data-precio="0" data-stock="0">
+                  -- Seleccione --
+                </option>
+                {% for producto in productos %}
+                <option
+                  value="{{ producto.pk }}"
+                  data-precio="{{ producto.precio }}"
+                  data-stock="{{ producto.stock }}"
+                  data-nombre="{{ producto.nombre }}"
+                >
+                  {{ producto.nombre }} (Stock: {{ producto.stock }})
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-field" style="flex: 1">
+              <label for="cantidad_a_agregar">Cantidad</label>
+              <input
+                type="number"
+                id="cantidad_a_agregar"
+                value="1"
+                min="1"
+                required
+              />
+            </div>
+            <div class="form-field" style="flex: 1">
+              <label for="precio_manual">Precio Unitario</label>
+              <input
+                type="number"
+                id="precio_manual"
+                step="0.01"
+                value="0.00"
+                min="0"
+                required
+              />
+            </div>
+            <button
+              type="button"
+              onclick="agregarProducto()"
+              class="auth-button"
+              style="background-color: #007bff; flex: 1; margin-bottom: 0"
+            >
+              Añadir
+            </button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Detalle de la Venta</h3>
+          <table id="detalleVentaTable">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th style="width: 80px">Cantidad</th>
+                <th style="width: 100px">Precio Unit.</th>
+                <th style="width: 100px">Subtotal</th>
+                <th style="width: 60px"></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          <div class="total-box">TOTAL: <span id="totalVenta">0.00</span></div>
+        </div>
+
+        <div
+          class="form-actions"
+          style="justify-content: space-between; margin-top: 30px"
+        >
+          <a
+            href="{% url 'home_inventario' %}"
+            class="auth-button"
+            style="background-color: #6c757d; text-decoration: none"
+          >
+            Cancelar
+          </a>
+          <button
+            type="submit"
+            class="auth-button"
+            style="background-color: #28a745"
+            id="finalizarVentaBtn"
+            disabled
+          >
+            Finalizar Venta
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      let productosEnVenta = {}; // {producto_id: {nombre, cantidad, precio, stock_disponible}}
+
+      // Obtener los stocks iniciales de Django y guardarlos en JS
+      const productosStock = {};
+      document
+        .querySelectorAll("#producto_selector option")
+        .forEach((option) => {
+          if (option.value) {
+            productosStock[option.value] = parseInt(option.dataset.stock);
+          }
+        });
+
+      // Función para calcular el total
+      function calcularTotal() {
+        let total = 0;
+        document
+          .querySelectorAll("#detalleVentaTable tbody tr")
+          .forEach((row) => {
+            const subtotalText = row.cells[3].textContent
+              .replace("$", "")
+              .trim();
+            total += parseFloat(subtotalText);
+          });
+        document.getElementById("totalVenta").textContent = total.toFixed(2);
+
+        // Habilitar/deshabilitar botón de venta
+        document.getElementById("finalizarVentaBtn").disabled = total <= 0;
+      }
+
+      // Función para añadir productos al carrito
+      function agregarProducto() {
+        const selector = document.getElementById("producto_selector");
+        const productoId = selector.value;
+        const cantidadInput = document.getElementById("cantidad_a_agregar");
+        const precioInput = document.getElementById("precio_manual");
+
+        if (!productoId) {
+          alert("Por favor, selecciona un producto.");
+          return;
+        }
+
+        const cantidad = parseInt(cantidadInput.value);
+        const precioUnitario = parseFloat(precioInput.value);
+        const stockInicial = productosStock[productoId];
+        const nombreProducto =
+          selector.options[selector.selectedIndex].dataset.nombre;
+
+        if (cantidad <= 0 || isNaN(cantidad)) {
+          alert("La cantidad debe ser un número positivo.");
+          return;
+        }
+
+        // Calcular la cantidad total si el producto ya está en el carrito
+        const cantidadActual = productosEnVenta[productoId]
+          ? productosEnVenta[productoId].cantidad
+          : 0;
+        const nuevaCantidadTotal = cantidadActual + cantidad;
+
+        // VALIDACIÓN DE STOCK
+        if (nuevaCantidadTotal > stockInicial) {
+          alert(
+            `Error: La cantidad total (${nuevaCantidadTotal}) supera el stock disponible (${stockInicial}) para ${nombreProducto}.`
+          );
+          return;
+        }
+
+        // Si el producto ya está en el carrito, solo actualizamos la cantidad
+        if (productosEnVenta[productoId]) {
+          productosEnVenta[productoId].cantidad = nuevaCantidadTotal;
+        } else {
+          // Si es un producto nuevo, lo añadimos
+          productosEnVenta[productoId] = {
+            nombre: nombreProducto,
+            cantidad: cantidad,
+            precio: precioUnitario,
+            stock_disponible: stockInicial,
+          };
+        }
+
+        actualizarTablaYCamposOcultos();
+
+        // Limpiar inputs después de añadir
+        cantidadInput.value = 1;
+        precioInput.value = parseFloat(
+          selector.options[selector.selectedIndex].dataset.precio
+        ).toFixed(2);
+      }
+
+      // Función para remover un producto
+      function removerProducto(productoId) {
+        delete productosEnVenta[productoId];
+        actualizarTablaYCamposOcultos();
+      }
+
+      // Función principal que renderiza la tabla y prepara los datos para Django
+      function actualizarTablaYCamposOcultos() {
+        const tbody = document.querySelector("#detalleVentaTable tbody");
+        tbody.innerHTML = "";
+
+        // Limpiar campos ocultos de envíos anteriores
+        document
+          .querySelectorAll(".detalle-input")
+          .forEach((input) => input.remove());
+
+        let total = 0;
+
+        for (const id in productosEnVenta) {
+          const item = productosEnVenta[id];
+          const subtotal = item.cantidad * item.precio;
+          total += subtotal;
+
+          const row = tbody.insertRow();
+          row.id = `row-${id}`;
+
+          row.insertCell(0).textContent = item.nombre;
+          row.insertCell(1).textContent = item.cantidad;
+          row.insertCell(2).textContent = "$" + item.precio.toFixed(2);
+          row.insertCell(3).textContent = subtotal.toFixed(2);
+
+          // Botón de eliminar
+          const cellAccion = row.insertCell(4);
+          cellAccion.innerHTML = `<button type="button" onclick="removerProducto(${id})" style="background-color: #dc3545; color: white; padding: 5px; border: none; border-radius: 3px; cursor: pointer;">X</button>`;
+
+          // Crear campos ocultos para enviar los datos a Django
+          const form = document.getElementById("ventaForm");
+
+          // ID del Producto
+          const inputId = document.createElement("input");
+          inputId.type = "hidden";
+          inputId.name = "producto_id[]";
+          inputId.value = id;
+          inputId.classList.add("detalle-input");
+          form.appendChild(inputId);
+
+          // Cantidad
+          const inputCantidad = document.createElement("input");
+          inputCantidad.type = "hidden";
+          inputCantidad.name = "cantidad[]";
+          inputCantidad.value = item.cantidad;
+          inputCantidad.classList.add("detalle-input");
+          form.appendChild(inputCantidad);
+
+          // Precio Unitario
+          const inputPrecio = document.createElement("input");
+          inputPrecio.type = "hidden";
+          inputPrecio.name = "precio_unitario[]";
+          inputPrecio.value = item.precio.toFixed(2);
+          inputPrecio.classList.add("detalle-input");
+          form.appendChild(inputPrecio);
+        }
+
+        calcularTotal();
+      }
+
+      // Inicializar el precio manual con el precio del primer producto al cargar la página
+      document.addEventListener("DOMContentLoaded", () => {
+        const selector = document.getElementById("producto_selector");
+        const precioInput = document.getElementById("precio_manual");
+        if (selector.options.length > 1) {
+          const firstOption = selector.options[1]; // Primer producto real
+          precioInput.value = parseFloat(firstOption.dataset.precio).toFixed(2);
+
+          // Actualizar precio cuando cambia la selección
+          selector.addEventListener("change", (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            if (selectedOption.value) {
+              precioInput.value = parseFloat(
+                selectedOption.dataset.precio
+              ).toFixed(2);
+            } else {
+              precioInput.value = "0.00";
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
