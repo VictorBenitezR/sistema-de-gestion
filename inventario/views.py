@@ -735,8 +735,11 @@ def crear_venta(request):
     
     return render(request, 'venta_form.html', contexto)
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import MovimientoStock
+
 @login_required
-@user_passes_test(lambda user: user.is_staff)
 def listar_movimientos(request):
     """Muestra el listado completo de entradas y salidas de stock."""
     
@@ -749,6 +752,7 @@ def listar_movimientos(request):
     }
     # NOTA: Necesitas crear la plantilla 'movimiento_listado.html'
     return render(request, 'movimiento_listado.html', contexto)
+
 
 @login_required
 def home_inventario(request):

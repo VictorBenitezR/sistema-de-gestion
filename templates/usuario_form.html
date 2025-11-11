@@ -10,17 +10,13 @@
         <h2>{{ titulo_form }}</h2>
 
         {% if mensaje %}
-        <div
-            class="validation-message {% if es_error %}validation-error{% else %}validation-success{% endif %}"
-        >
+        <div class="validation-message {% if es_error %}validation-error{% else %}validation-success{% endif %}">
             {{ mensaje }}
         </div>
         {% endif %}
         
         {% if usuario %}
-            {% with action_url=usuario.pk|urlize:'editar_usuario' %}
-                <form method="post" action="{% url 'editar_usuario' pk=usuario.pk %}">
-            {% endwith %}
+            <form method="post" action="{% url 'editar_usuario' pk=usuario.pk %}">
         {% else %}
             <form method="post" action="{% url 'crear_usuario' %}">
         {% endif %}
@@ -32,7 +28,7 @@
                     type="text"
                     id="username"
                     name="username"
-                    value="{{ usuario.username|default:usuario_prev.username }}"
+                    value="{% if usuario %}{{ usuario.username }}{% else %}{{ usuario_prev.username }}{% endif %}"
                     required
                     {% if usuario %}
                         readonly
@@ -47,13 +43,19 @@
                     type="text"
                     id="nombre_completo"
                     name="nombre_completo"
-                    value="{{ nombre_completo_prev|default:usuario_prev.nombre_completo }}"
+                    value="{% if usuario %}{{ nombre_completo_prev|default:usuario.get_full_name }}{% else %}{{ usuario_prev.nombre_completo }}{% endif %}"
                     required
                 />
             </div>
 
             <div class="form-field">
-                <label for="password">{% if usuario %}Nueva Contraseña (Dejar vacío para no cambiar){% else %}Contraseña{% endif %}</label>
+                <label for="password">
+                    {% if usuario %}
+                        Nueva Contraseña (Dejar vacío para no cambiar)
+                    {% else %}
+                        Contraseña
+                    {% endif %}
+                </label>
                 <input
                     type="password"
                     id="password"
@@ -68,9 +70,12 @@
                     type="checkbox"
                     id="is_staff"
                     name="is_staff"
-                    {% if es_staff_prev|default:usuario_prev.is_staff %}checked{% endif %}
+                    {% if usuario %}
+                        {% if es_staff_prev|default:usuario.is_staff %}checked{% endif %}
+                    {% else %}
+                        {% if usuario_prev.is_staff %}checked{% endif %}
+                    {% endif %}
                     style="margin-right: 10px;"
-                    
                     {% if usuario and usuario.pk == request.user.pk %}
                         disabled 
                     {% endif %}
@@ -79,17 +84,14 @@
                     ¿Es Administrador (Staff)?
                 </label>
             </div>
+
             {% if usuario and usuario.pk == request.user.pk %}
                 <p style="color: #6c757d; font-size: 0.9em; margin-top: -10px;">
                     * No puedes cambiar tu propio estado de administrador.
                 </p>
             {% endif %}
 
-
-            <div
-                class="form-actions"
-                style="justify-content: space-between; margin-top: 30px"
-            >
+            <div class="form-actions" style="justify-content: space-between; margin-top: 30px">
                 <a
                     href="{% url 'listar_usuarios' %}"
                     class="auth-button"
@@ -102,7 +104,11 @@
                     class="auth-button"
                     style="background-color: #007bff"
                 >
-                    {% if usuario %}Actualizar Usuario{% else %}Registrar Usuario{% endif %}
+                    {% if usuario %}
+                        Actualizar Usuario
+                    {% else %}
+                        Registrar Usuario
+                    {% endif %}
                 </button>
             </div>
         </form>
