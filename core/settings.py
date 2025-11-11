@@ -7,7 +7,7 @@ For more information on this file, see
 https://docs.djangoproject.com/en/5.2/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/5.2/ref/settings/
+https://docs.djangoproject.com/en/5.2/ref/settings/#auth-settings
 """
 
 from pathlib import Path
@@ -55,7 +55,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # Modificar esta línea,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -103,9 +103,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es-es' # 🚨 CAMBIO: Usamos español por defecto para ser coherentes
+TIME_ZONE = 'America/Asuncion' # 🚨 CAMBIO: Establecer zona horaria específica para América del Sur (Paraguay)
 
 USE_I18N = True
 
@@ -121,3 +120,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# =======================================================
+# CONFIGURACIÓN DE AUTENTICACIÓN PERSONALIZADA (SOLUCIÓN 404)
+# =======================================================
+
+# 🚨 CRÍTICO: Indica a Django dónde está la vista de login (name='login_usuario').
+LOGIN_URL = 'login_usuario' 
+
+# URL a la que redirigir después de un inicio de sesión exitoso.
+LOGIN_REDIRECT_URL = 'home_inventario' 
+
+# URL a la que redirigir después de cerrar sesión.
+LOGOUT_REDIRECT_URL = 'login_usuario'

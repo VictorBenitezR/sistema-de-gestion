@@ -29,6 +29,19 @@ body {
     background-color: #f8f9fa; /* Fondo ligeramente más claro para el contenido */
 }
 
+/* 🚨 NUEVO ESTILO: Para centrar el contenido de páginas que no usan el sidebar (como listados sin herencia de base.html) */
+.page-content {
+    margin: 50px auto; /* Centra horizontalmente el contenedor */
+}
+
+/* 🚨 NUEVO ESTILO: Para el título grande y centrado, como en Historial de Movimientos */
+.main-title {
+    text-align: left; /* Generalmente los títulos de listados están a la izquierda */
+    font-size: 2.2em; /* Tamaño grande */
+    font-weight: 700; /* En negrita */
+    color: #333;
+    margin-bottom: 25px;
+}
 
 
 /* --- Sidebar (Barra Lateral) --- */

@@ -2,24 +2,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Reporte de Stock</title>
+    <title>Inventario de Productos</title>
     <link rel="stylesheet" href="{% static 'inventario/css/styles.css' %}" />
   </head>
 
   <body>
     <div
-      class="container"
+      class="container page-content"
       style="width: 90%; max-width: 1100px; margin-top: 50px"
     >
-      <div class="header" style="background-color: #343a40">
-        Reporte de Stock e Inventario
-        <a href="{% url 'logout_usuario' %}" class="logout-link"
-          >Cerrar Sesión</a
-        >
-      </div>
+      <!-- 🚨 ELIMINADO: La barra negra con "Cerrar Sesión" ya no está aquí -->
 
       <div class="content">
-        <h2>Inventario de Productos</h2>
+        <!-- Título principal con la nueva clase para el estilo -->
+        <h2 class="main-title">Inventario de Productos</h2>
 
         <div
           class="form-actions"
